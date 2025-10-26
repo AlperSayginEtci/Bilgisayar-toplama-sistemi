@@ -1,0 +1,238 @@
+#root {
+  max-width: none;
+  margin: 0 auto;
+  /* tighter page padding so the main area can expand more towards the sides */
+  padding: 8px 12px;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* App specific styles */
+body {
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg,#0f1724 0%, #0b1220 100%); /* deep slate */
+  color: #e6eef6;
+}
+
+h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+h3 { margin: 0 0 8px 0; }
+
+.picker-list li div { line-height: 1.2 }
+
+/* bottom strip tweaks */
+.picker-strip-button { min-width: 100px; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: #14313f; color: #fff }
+.picker-strip-button.active { background: linear-gradient(180deg,#ffd08a 0%,#f0ad4e 100%); color: #111 }
+
+/* summary tweaks */
+aside h3 { margin-top: 0; color: #fff }
+aside ul { padding-left: 0; list-style: none }
+aside li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03) }
+aside li:last-child { border-bottom: none }
+
+.item-title { color: #fff; font-weight: 700 }
+.item-sub { font-size: 12px; color: #bfc3c6 }
+
+.picker-item img { width: 56px; height: 40px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,0.04); padding: 4px }
+
+/* Buttons */
+button {
+  cursor: pointer;
+  background: linear-gradient(180deg,#17384a 0%,#0f2b3a 100%);
+  color: #e6eef6;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(20%); }
+
+/* Price button */
+.picker-item button { padding: 8px 12px; min-width: 96px }
+
+/* Inputs */
+input[type="text"], input[type="search"], input[type="number"], input[type="checkbox"] {
+  background: #2a2a2a;
+  color: #eee;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* Main layout tweaks */
+main {
+  /* card look */
+}
+
+/* Card container (main content area) */
+main > div {
+  background: linear-gradient(180deg,#0d2233 0%, #0f2a44 100%);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 20px 28px;
+  border-radius: 8px;
+  /* reserve space on the right for the fixed summary panel (320px) + small gutter */
+  margin-right: 360px;
+}
+
+/* Picker list items */
+.picker-section { display: flex; flex-direction: column; height: 420px; }
+.picker-controls { flex: 0 0 auto; }
+.picker-list { flex: 1 1 auto; overflow: auto; padding-right: 8px; list-style: none; margin: 0; }
+.picker-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; }
+.picker-item + .picker-item { border-top: 1px solid rgba(255,255,255,0.04); }
+.picker-item:last-child { border-bottom: none }
+
+/* Picker list items: force fixed/minimum height and consistent layout */
+.picker-list { display: flex; flex-direction: column; gap: 8px; }
+.picker-list .picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 12px;
+  min-height: 84px; /* increase min height to avoid crowding */
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+}
+
+/* Add spacing inside title/sub elements to prevent line overlap */
+.picker-item .item-title { margin-bottom: 6px; line-height: 1.2 }
+.picker-item .item-sub { line-height: 1.35; opacity: 0.9 }
+
+/* Reduce visual clutter of borders when gap is present */
+.picker-list .picker-item + .picker-item { border-top: none }
+
+@media (max-width: 900px) {
+  .picker-list { gap: 6px }
+  .picker-list .picker-item { padding: 12px; min-height: 68px }
+  .picker-item .item-title { margin-bottom: 4px }
+}
+
+/* Price/button area stays compact and aligned */
+.picker-item .price-area, .picker-item > div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 120px;
+}
+
+/* picker card wrapper (stabilize height and font sizes) */
+.picker-card { height: 720px; display: flex; flex-direction: column; width: 100% }
+.picker-card h1, .picker-card h2, .picker-card h3 { margin: 0 }
+.picker-card { font-size: 15px; }
+.picker-card .item-title { font-size: 16px }
+.picker-card .item-sub { font-size: 13px }
+.picker-card .picker-controls input { font-size: 14px }
+
+/* Summary fixed panel */
+.summary-fixed {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 320px;
+  max-height: calc(100vh - 140px);
+  background: linear-gradient(180deg,#0b2230, #08202a);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 10px;
+  z-index: 70;
+  padding: 12px;
+  box-shadow: 0 8px 30px rgba(2,6,10,0.6);
+}
+.summary-inner { overflow: auto; max-height: calc(100vh - 200px); padding-right: 6px }
+.summary-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 }
+.summary-item-left { max-width: 60% }
+.summary-item-right { text-align: right }
+.item-price { font-weight: 700; margin-bottom: 6px }
+.summary-total { margin-top: 12px; font-size: 1.05em }
+
+/* Make the picker-card content internally scrollable and stable height */
+.picker-card { height: 720px; display: flex; flex-direction: column; width: 100% }
+.picker-card .picker-section { flex: 1 1 auto; display: flex; flex-direction: column }
+.picker-card .picker-list { flex: 1 1 auto; overflow: auto; padding-right: 12px }
+
+/* Picker card content wrapper styles */
+.picker-card--content {
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Ensure picker-list inside uses full height area */
+.picker-card .picker-list { padding: 6px }
+
+/* Make picker strip buttons stretch and wrap nicely */
+.picker-strip-button { min-width: 120px; padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: #14313f; color: #fff; flex: 0 0 auto }
+.picker-strip-button.active { background: linear-gradient(180deg,#ffd08a 0%,#f0ad4e 100%); color: #111 }
+
+/* ensure bottom bar content centers and buttons grow if space */
+@media (min-width: 900px) {
+  .picker-strip-button { min-width: 140px }
+}
+
+@media (max-width: 900px) {
+  #root { padding: 12px }
+  main > div { max-width: 100%; }
+  .picker-card { height: 520px }
+}
+
+/* Bottom picker strip layout: distribute buttons evenly */
+.picker-strip {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background: #111;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  z-index: 60;
+}
+
+/* Make buttons grow to fill the bar equally, but keep a max-width so they don't get huge */
+.picker-strip-button {
+  flex: 1 1 0;
+  min-width: 80px;
+  padding: 12px 16px;
+  text-align: center;
+}
+.picker-strip-button + .picker-strip-button { margin-left: 8px }
+
+/* If there are too many buttons, allow horizontal scrolling */
+.picker-strip { overflow-x: auto }
