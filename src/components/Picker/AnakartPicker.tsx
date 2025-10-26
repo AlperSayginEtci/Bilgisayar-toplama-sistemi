@@ -1,40 +1,63 @@
-// src/components/Picker/AnakartPicker.tsx
-import { useState } from 'react';
+
 import { useStore } from '../../state/hooks';
 import { cpuCompatible } from '../../utils/compat';
+import { matchesFilters } from '../../utils/filters';
+import type { Anakart as AnakartType, Islemci as IslemciType } from '../../data/loader';
+
+
+function isOutOfStock(item?: Partial<AnakartType> | null): boolean {
+  const s = item?.stok;
+  if (s == null) return false;
+  // loader types define stok as object { durum?: string }
+  if (typeof s === 'object') {
+    return (s as { durum?: string }).durum === 'out_of_stock';
+  }
+  return false;
+}
 
 export default function AnakartPicker() {
   const { state, dispatch } = useStore();
-  const [q, setQ] = useState('');
-  const boards = state.data?.anakart ?? [];
-  const selectedCpuId = state.selected['islemci'];
-  const selectedCpu = state.data?.islemci?.find((c) => c.id === selectedCpuId) ?? null;
+  const globalQ = state.filters?.['anakart']?.q ?? '';
+  const boards: AnakartType[] = (state.data?.anakart ?? []) as AnakartType[];
+  const selectedCpuId = state.selected['islemci'] as string | undefined;
+  const selectedCpu = (state.data?.islemci ?? []).find((c: IslemciType) => c.id === selectedCpuId) ?? null;
 
   if (state.loading) return <div>Yükleniyor...</div>;
 
+  const filters = state.filters?.['anakart'];
   const filtered = boards.filter((b) => {
-    if (!q) return true;
-    const haystack = ((b.marka ?? b.ad ?? '') + ' ' + (b.model ?? '') + ' ' + String(b.id ?? '')).toLowerCase();
-    return haystack.includes(q.toLowerCase());
+    if (globalQ) {
+      const haystack = ((b.marka ?? b.ad ?? '') + ' ' + (b.model ?? '') + ' ' + String(b.id ?? '')).toLowerCase();
+      if (!haystack.includes(globalQ.toLowerCase())) return false;
+    }
+    // matchesFilters already handles undefined safely
+    return matchesFilters(b, filters);
   });
 
   return (
     <section className="picker-section">
       <div className="picker-controls" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input placeholder="Anakart ara" value={q} onChange={(e) => setQ(e.target.value)} />
+        {/* Search moved to FilterBar (global q) */}
       </div>
       <ul className="picker-list" style={{ padding: 0 }}>
         {filtered.map((b) => {
-          const outOfStock = (b.stok && typeof b.stok === 'object' ? (b.stok as { durum?: string }).durum === 'out_of_stock' : false);
-          const compatible = cpuCompatible(b, selectedCpu);
+          const outOfStock = isOutOfStock(b);
+          const compatible = cpuCompatible(b as AnakartType, selectedCpu as IslemciType | null);
           const disabled = outOfStock || !compatible;
           const price = b.fiyat_try ?? 0;
+
+          const hizArr = Array.isArray(b.bellek?.hiz_mhz) ? (b.bellek!.hiz_mhz as number[]) : [];
+          const maxRamSpeed = hizArr.length ? Math.max(...hizArr) : null;
+
           return (
             <li key={b.id} className="picker-item">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div>
                   <div className="item-title">{b.marka ?? b.ad ?? b.id} {b.model ?? ''} {outOfStock ? <span style={{ fontSize: 12, color: '#d9534f', marginLeft: 8 }}>Stokta yok</span> : null}</div>
-                  <div className="item-sub">{b.form_factor ?? '-'} • Soket: {b.soket ?? '-'} • Bellek: {b.bellek?.tip ?? '-'} ({b.bellek?.yuva_sayisi ?? '-'} yuva)</div>
+                  <div className="item-sub">
+                    {b.form_factor ?? '-'} • Soket: {b.soket ?? (b.cpu_uyumluluk?.socket ?? '-') } • Bellek: {b.bellek?.tip ?? '-'} ({b.bellek?.yuva_sayisi ?? '-'} yuva)
+                    {maxRamSpeed ? (<span> • Max RAM hızı: {maxRamSpeed} MHz</span>) : null}
+                  </div>
                 </div>
               </div>
               <div className="price-area">

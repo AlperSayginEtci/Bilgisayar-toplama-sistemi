@@ -1,73 +1,64 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## ✨ Proje: PC Toplama
+"PC Toplama" tek sayfa (SPA) React + TypeScript projesidir. Amaç; /public/data içindeki JSON veri setlerini kullanarak, kullanıcıların adım adım parça seçip uyumlu bir bilgisayar toplamasını sağlamak, filtreleme/arama ve stok kontrolü gibi kullanıcı dostu özellikler sunmaktır.
 
-Currently, two official plugins are available:
+Kullanım senaryosu örneği: kullanıcı önce bir anakart seçer, ona uygun işlemciler listelenir; ardından RAM, GPU, PSU, Kasa vb. sırasıyla seçilir. Uyumsuz parçalar pasif/gizli veya uyarılı gösterilir.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠 Temel Özellikler
+- Adım adım seçim akışı: Anakart → İşlemci → RAM → Ekran Kartı → PSU → Kasa → Depolama → Monitör → Klavye → Fare → CPU Soğutucu
+- Uyumluluk kuralları uygulaması (anakart-CPU, anakart-RAM, anakart-GPU, kasa-uyumları, PSU-güç/konnektör, depolama-m.2/sata kontrolleri vb.)
+- Stok kontrolü: stokta olmayan ürünler gri gösterilir ve seçilemez.
+- Filtreleme & arama: marka, fiyat aralığı, özellik (örn. DDR5, 144Hz, 80+ Gold) — global FilterBar ile picker içeriğini filtreleme
+- Seçim özeti ve toplam fiyat: sabit özet paneli (sağ/üst)
+- Seçimlerin saklanması: localStorage ile sayfa yenilense bile seçimler korunur
+- UI iyileştirmeleri: alt picker şeridi, sabit orta liste alanı, öğe kartlarında stok/özellik bilgileri
+- Tip güvenliği: TypeScript arayüzleri (`src/types/parts.ts`) — kodun okunabilirliği ve bakım kolaylığı için
 
-## React Compiler
+## 🧩 Kullanılan Teknolojiler
+- React (Function components + Hooks)
+- TypeScript
+- Vite (dev server / build)
+- Tailwind CSS (isteğe bağlı; proje içinde temel stiller kullanılabilir)
+- Yerel JSON verileri: /public/data/*.json
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> Not: Projede hem klasik CSS hem de Tailwind parçaları bulunabilir. Tailwind veya PostCSS ayarlarında "type": "module" içeren package.json olduğu durumlarda `postcss.config.cjs` kullanılması gerekebilir (aşağıda hata giderme bölümünde kısa not var).
 
-## Expanding the ESLint configuration
+## 🚀 Başlarken (Hızlı kurulum)
+Terminal/komut istemcisinde proje klasörüne gidin (ör: repository root) ve aşağıyı çalıştırın:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- `npm run dev` ardından Vite dev sunucusu açılır (ör. http://localhost:5173 veya konsolda verilen port).
+- Eğer Tailwind kurulum adımlarını uygulamak isterseniz:
+  - `npm install -D tailwindcss postcss autoprefixer` (Windows cmd için && yerine ayrı satırlarda çalıştırın)
+  - `npx tailwindcss init -p` (veya manuel `postcss.config.cjs` oluşturun)
+  - PostCSS konfigürasyonunda `@tailwindcss/postcss` eklentisi gerekebilir; hata ile karşılaşırsanız README altındaki Hata Giderme bölümüne bakın.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📁 Proje Yapısı (Önemli dosyalar)
+Aşağıda projede sık kullanacağınız ana dizin ve dosyaların özeti var:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `public/data/` — Tüm JSON veri dosyaları (anakart.json, islemci.json, ram.json, ekran_karti.json, psu.json, kasa.json, depolama.json, monitor.json, klavye.json, fare.json, islemci_sogutucu.json)
+- `src/`
+  - `main.tsx`, `index.css` — uygulama giriş noktası
+  - `App.tsx` — ana layout: FilterBar, picker-card, bottom picker strip, Summary
+  - `App.css` — uygulamaya ait global stiller
+  - `data/loader.ts` — JSON dosyalarını fetch eden yardımcı; tipleri `src/types/parts.ts` üzerinden alır
+  - `types/parts.ts` — proje genelinde kullanılan TypeScript arayüzleri (BasePart, Anakart, Islemci, Ram, ...)
+  - `state/`
+    - `store.tsx` — global state provider, seçili parçalar ve cascade-clear mantığı burada
+    - `hooks.ts` — kolay erişim hook'ları, toplam hesaplama vb.
+    - `internalContext.tsx` — context wrapper
+  - `components/`
+    - `Summary.tsx` — sağ üst sabit seçim özeti
+    - `FilterBar.tsx` — global filtre/arama bileşeni
+    - `Picker/` — her kategori için picker bileşenleri (AnakartPicker.tsx, CpuPicker.tsx, RamPicker.tsx, ...)
+
+## 📊 Veri Kaynağı
+- Tüm ürün verileri JSON formatında `public/data/` klasöründe yer alır.
+- Dosyalar: `anakart.json`, `islemci.json`, `ram.json`, `ekran_karti.json`, `psu.json`, `kasa.json`, `depolama.json`, `monitor.json`, `klavye.json`, `fare.json`, `islemci_sogutucu.json`.
+- `src/data/loader.ts` bu dosyaları fetch edip `AllData` tipine göre döndürür.
+- Tipler ve arayüzler `src/types/parts.ts` içinde tanımlıdır; böylece bileşenler tip güvenli şekilde verilerle çalışır.
+
