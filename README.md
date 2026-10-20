@@ -65,8 +65,3 @@ Then open the URL shown in the terminal (usually `http://localhost:5173`).
 npm run build     # type-check and production build
 npm run preview   # preview the production build
 ```
-
-## Possible Improvements
-- Unit tests for the compatibility rules
-- Shareable build links (encode the selection in the URL)
-- Fetch live prices from an API instead of static JSON
