@@ -1,64 +1,72 @@
+# 🖥️ PC Builder — Compatibility-Aware PC Configurator
 
-## ✨ Proje: PC Toplama
-"PC Toplama" tek sayfa (SPA) React + TypeScript projesidir. Amaç; /public/data içindeki JSON veri setlerini kullanarak, kullanıcıların adım adım parça seçip uyumlu bir bilgisayar toplamasını sağlamak, filtreleme/arama ve stok kontrolü gibi kullanıcı dostu özellikler sunmaktır.
+A single-page web app that guides users step by step through building a desktop PC. At each step it hides or flags parts that are incompatible with what has already been chosen, and it keeps a running total price. Built with **React 19 + TypeScript + Vite**.
 
-Kullanım senaryosu örneği: kullanıcı önce bir anakart seçer, ona uygun işlemciler listelenir; ardından RAM, GPU, PSU, Kasa vb. sırasıyla seçilir. Uyumsuz parçalar pasif/gizli veya uyarılı gösterilir.
+> The UI is in Turkish (the project was built for a Turkish-speaking audience); the code and this documentation are in English.
 
-## 🛠 Temel Özellikler
-- Adım adım seçim akışı: Anakart → İşlemci → RAM → Ekran Kartı → PSU → Kasa → Depolama → Monitör → Klavye → Fare → CPU Soğutucu
-- Uyumluluk kuralları uygulaması (anakart-CPU, anakart-RAM, anakart-GPU, kasa-uyumları, PSU-güç/konnektör, depolama-m.2/sata kontrolleri vb.)
-- Stok kontrolü: stokta olmayan ürünler gri gösterilir ve seçilemez.
-- Filtreleme & arama: marka, fiyat aralığı, özellik (örn. DDR5, 144Hz, 80+ Gold) — global FilterBar ile picker içeriğini filtreleme
-- Seçim özeti ve toplam fiyat: sabit özet paneli (sağ/üst)
-- Seçimlerin saklanması: localStorage ile sayfa yenilense bile seçimler korunur
-- UI iyileştirmeleri: alt picker şeridi, sabit orta liste alanı, öğe kartlarında stok/özellik bilgileri
-- Tip güvenliği: TypeScript arayüzleri (`src/types/parts.ts`) — kodun okunabilirliği ve bakım kolaylığı için
+## Features
 
-## 🧩 Kullanılan Teknolojiler
-- React (Function components + Hooks)
-- TypeScript
-- Vite (dev server / build)
-- Tailwind CSS (isteğe bağlı; proje içinde temel stiller kullanılabilir)
-- Yerel JSON verileri: /public/data/*.json
+- **Guided build flow across 11 categories:** Motherboard → CPU → RAM → GPU → PSU → Case → Storage → Monitor → Keyboard → Mouse → CPU Cooler. A step unlocks only after the previous one is chosen
+- **Compatibility engine** (`src/utils/compat.ts`) that checks:
+  - CPU ↔ motherboard: vendor, socket and supported generations
+  - RAM ↔ motherboard: memory type (DDR4/DDR5), max speed, slot count
+  - GPU ↔ motherboard: PCIe x16 slot availability and PCIe generation (shows a bandwidth warning)
+  - PSU: wattage headroom (CPU TDP + GPU TGP + 150 W) and the 12VHPWR connector
+  - Case: motherboard form factor, GPU length, cooler height clearance
+  - Cooler: socket support and TDP rating
+  - Storage: SATA ports and M.2 NVMe slots, including PCIe generation
+- **Cascade reset:** changing an earlier part automatically clears the later selections that depend on it
+- **Filtering and search** by brand, price range, feature tags (e.g. DDR5, 144 Hz, 80+ Gold) and stock status
+- **Stock awareness:** out-of-stock items are greyed out and cannot be selected
+- **Live summary panel** with the total price in TRY
+- **Persistence:** the build is saved to `localStorage` and restored on reload
+- **Dataset:** 330 products (30 per category) as typed JSON files
 
-> Not: Projede hem klasik CSS hem de Tailwind parçaları bulunabilir. Tailwind veya PostCSS ayarlarında "type": "module" içeren package.json olduğu durumlarda `postcss.config.cjs` kullanılması gerekebilir (aşağıda hata giderme bölümünde kısa not var).
+## Tech Stack
 
-## 🚀 Başlarken (Hızlı kurulum)
-Terminal/komut istemcisinde proje klasörüne gidin (ör: repository root) ve aşağıyı çalıştırın:
+| Area | Tools |
+|---|---|
+| UI | React 19 (function components and hooks) |
+| Language | TypeScript (strict typed part models in `src/types/parts.ts`) |
+| State | `useReducer` + Context (a custom store, no external library) |
+| Build | Vite |
+| Styling | CSS + Tailwind CSS |
+| Data | Static JSON in `public/data/` |
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Picker/          # one picker per category (CpuPicker, RamPicker, GpuPicker, …)
+│   ├── FilterBar.tsx    # brand / price / feature / stock filters
+│   └── Summary.tsx      # fixed selection summary and total
+├── state/               # reducer-based store, cascade-clear logic, hooks
+├── utils/
+│   ├── compat.ts        # compatibility rules
+│   └── filters.ts       # filter helpers
+├── data/loader.ts       # loads all JSON datasets
+└── types/parts.ts       # TypeScript interfaces for every part type
+public/data/*.json       # product catalog
+```
+
+## Getting Started
 
 ```bash
+git clone https://github.com/AlperSayginEtci/Bilgisayar-toplama-sistemi.git
+cd Bilgisayar-toplama-sistemi
 npm install
 npm run dev
 ```
 
-- `npm run dev` ardından Vite dev sunucusu açılır (ör. http://localhost:5173 veya konsolda verilen port).
-- Eğer Tailwind kurulum adımlarını uygulamak isterseniz:
-  - `npm install -D tailwindcss postcss autoprefixer` (Windows cmd için && yerine ayrı satırlarda çalıştırın)
-  - `npx tailwindcss init -p` (veya manuel `postcss.config.cjs` oluşturun)
-  - PostCSS konfigürasyonunda `@tailwindcss/postcss` eklentisi gerekebilir; hata ile karşılaşırsanız README altındaki Hata Giderme bölümüne bakın.
+Then open the URL shown in the terminal (usually `http://localhost:5173`).
 
-## 📁 Proje Yapısı (Önemli dosyalar)
-Aşağıda projede sık kullanacağınız ana dizin ve dosyaların özeti var:
+```bash
+npm run build     # type-check and production build
+npm run preview   # preview the production build
+```
 
-- `public/data/` — Tüm JSON veri dosyaları (anakart.json, islemci.json, ram.json, ekran_karti.json, psu.json, kasa.json, depolama.json, monitor.json, klavye.json, fare.json, islemci_sogutucu.json)
-- `src/`
-  - `main.tsx`, `index.css` — uygulama giriş noktası
-  - `App.tsx` — ana layout: FilterBar, picker-card, bottom picker strip, Summary
-  - `App.css` — uygulamaya ait global stiller
-  - `data/loader.ts` — JSON dosyalarını fetch eden yardımcı; tipleri `src/types/parts.ts` üzerinden alır
-  - `types/parts.ts` — proje genelinde kullanılan TypeScript arayüzleri (BasePart, Anakart, Islemci, Ram, ...)
-  - `state/`
-    - `store.tsx` — global state provider, seçili parçalar ve cascade-clear mantığı burada
-    - `hooks.ts` — kolay erişim hook'ları, toplam hesaplama vb.
-    - `internalContext.tsx` — context wrapper
-  - `components/`
-    - `Summary.tsx` — sağ üst sabit seçim özeti
-    - `FilterBar.tsx` — global filtre/arama bileşeni
-    - `Picker/` — her kategori için picker bileşenleri (AnakartPicker.tsx, CpuPicker.tsx, RamPicker.tsx, ...)
-
-## 📊 Veri Kaynağı
-- Tüm ürün verileri JSON formatında `public/data/` klasöründe yer alır.
-- Dosyalar: `anakart.json`, `islemci.json`, `ram.json`, `ekran_karti.json`, `psu.json`, `kasa.json`, `depolama.json`, `monitor.json`, `klavye.json`, `fare.json`, `islemci_sogutucu.json`.
-- `src/data/loader.ts` bu dosyaları fetch edip `AllData` tipine göre döndürür.
-- Tipler ve arayüzler `src/types/parts.ts` içinde tanımlıdır; böylece bileşenler tip güvenli şekilde verilerle çalışır.
-
+## Possible Improvements
+- Unit tests for the compatibility rules
+- Shareable build links (encode the selection in the URL)
+- Fetch live prices from an API instead of static JSON
